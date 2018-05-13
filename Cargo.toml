@@ -1,0 +1,9 @@
+[package]
+name = "gymbilletter"
+version = "0.1.0"
+authors = ["Polly Nielsen Boutet-Livoff <pollyboutet@gmail.com>"]
+
+[dependencies]
+rocket = "0.3.10"
+rocket_codegen = "0.3.10"
+diesel = { version = "1.1", features = ["postgres", "r2d2"] }
