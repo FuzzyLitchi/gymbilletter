@@ -1,6 +1,7 @@
 use super::schema::parties;
+use serde::ser::*;
 
-#[derive(Queryable)]
+#[derive(Queryable, Serialize, Deserialize)]
 pub struct Party {
     pub id: i32,
     pub title: String,

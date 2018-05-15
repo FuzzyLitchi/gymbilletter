@@ -3,10 +3,17 @@
 
 extern crate rocket;
 use rocket::request::Form;
+
+extern crate rocket_contrib;
+use rocket_contrib::Template;
+
 #[macro_use] extern crate diesel;
 use diesel::prelude::*;
 
 extern crate uuid;
+extern crate serde;
+#[macro_use] extern crate serde_derive;
+#[macro_use] extern crate serde_json;
 
 mod database;
 use database::{DbConn, init_pool};
@@ -16,14 +23,14 @@ mod party;
 mod auth;
 
 #[get("/")]
-fn index(conn: DbConn) -> String {
+fn index(conn: DbConn) -> Template {
     use schema::parties::dsl::*;
+    use party::Party;
 
-    let results = parties.select(title)
-        .load::<String>(&*conn)
+    let results = parties.load::<Party>(&*conn)
         .expect("Error");
 
-    format!("Hello World!\n{}", &results.join("\n"))
+    Template::render("index", json!({"parties": &results}))
 }
 
 #[get("/party")]
@@ -64,5 +71,6 @@ fn main() {
         .mount("/", routes![party])
         .mount("/", routes![party_details])
         .mount("/", routes![new_party])
+        .attach(Template::fairing())
         .launch();
 }
