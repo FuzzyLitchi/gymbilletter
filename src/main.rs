@@ -6,11 +6,14 @@ use rocket::request::Form;
 #[macro_use] extern crate diesel;
 use diesel::prelude::*;
 
+extern crate uuid;
+
 mod database;
 use database::{DbConn, init_pool};
 
 mod schema;
 mod party;
+mod auth;
 
 #[get("/")]
 fn index(conn: DbConn) -> String {
