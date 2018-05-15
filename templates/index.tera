@@ -1,0 +1,6 @@
+<h1>Parties</h1>
+<ul>
+{% for party in parties %}
+  <li><a href="/party/{{ party.id }}">{{ party.title }}</a></li>
+{% endfor %}
+</ul>
