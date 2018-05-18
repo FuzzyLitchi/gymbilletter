@@ -4,13 +4,29 @@ use rocket::request::FromRequest;
 
 use database::DbConn;
 use uuid::Uuid;
+use schema::users;
 
 #[derive(Queryable)]
-pub struct User {
+pub struct UserQuery {
     pub user_id: Uuid,
     pub username: String,
     pub is_admin: bool,
     salt_hash: String,
+}
+
+impl UserQuery {
+    pub fn downgrade(self) -> User {
+        User {
+            username: self.username,
+            is_admin: self.is_admin,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct User {
+    pub username: String,
+    pub is_admin: bool
 }
 
 impl<'a, 'r> FromRequest<'a, 'r> for User {
@@ -22,7 +38,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for User {
             Outcome::Success(mut cookies) => {
                 match cookies.get_private("uuid") {
                     Some(s) => s,
-                    _ => return Outcome::Forward(()),
+                    None => return Outcome::Forward(()),
                 }
             },
             _ => return Outcome::Forward(()),
@@ -41,12 +57,24 @@ impl<'a, 'r> FromRequest<'a, 'r> for User {
             use diesel::prelude::*;
 
             return match users.find(uuid)
-                .first(&*conn) {
-                Ok(user) => Outcome::Success(user),
+                .first::<UserQuery>(&*conn) {
+                Ok(user) => Outcome::Success(user.downgrade()),
+                // In theory, this shouldn't happen.
+                // The only way it can is if the server sets a private cookie to be a valid uuid,
+                // then deletes the equivalent user. Or someone has the ability to set custom
+                // private cookies. Which should be impossible.
                 Err(_) => Outcome::Failure((Status::BadRequest, ())),
             }
         } else {
             Outcome::Failure((Status::InternalServerError, ()))
         }
     }
+}
+
+#[derive(Insertable, FromForm)]
+#[table_name="users"]
+pub struct NewUser {
+    pub username: String,
+    pub is_admin: bool,
+    salt_hash: String,
 }

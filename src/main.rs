@@ -21,14 +21,30 @@ use database::{DbConn, init_pool};
 mod schema;
 mod party;
 mod auth;
+use auth::User;
 
 #[get("/")]
-fn index(conn: DbConn) -> Template {
+fn index_user(conn: DbConn, user: User) -> Template {
     use schema::parties::dsl::*;
     use party::Party;
 
     let results = parties.load::<Party>(&*conn)
         .expect("Error");
+
+    Template::render("index", json!({"parties": &results, "user": &user}))
+}
+
+use rocket::http::Cookies;
+#[get("/", rank = 2)]
+fn index(conn: DbConn, mut cookies: Cookies) -> Template {
+    use schema::parties::dsl::*;
+    use party::Party;
+
+    let results = parties.load::<Party>(&*conn)
+        .expect("Error");
+
+    use rocket::http::Cookie;
+    cookies.add_private(Cookie::new("uuid", "23a6fe73-9745-4e9a-8a73-ddb800949021"));
 
     Template::render("index", json!({"parties": &results}))
 }
@@ -64,13 +80,29 @@ fn new_party(new_party: Form<NewParty>, conn: DbConn) -> String {
     }
 }
 
+use auth::NewUser;
+#[post("/new_user", data = "<new_user>")]
+fn new_user(new_user: Form<NewUser>, conn: DbConn) -> String {
+    use schema::users::dsl::users;
+    use auth::{User, UserQuery};
+
+    match diesel::insert_into(users)
+        .values(new_user.get())
+        .get_result::<UserQuery>(&*conn) {
+        Ok(user) => format!("User \"{}\" has been created, width uuid \"{}\"", user.username, user.user_id),
+        Err(_) => "Error".into(),
+    }
+}
+
 fn main() {
     rocket::ignite()
         .manage(init_pool())
+        .mount("/", routes![index_user])
         .mount("/", routes![index])
         .mount("/", routes![party])
         .mount("/", routes![party_details])
         .mount("/", routes![new_party])
+        .mount("/", routes![new_user])
         .attach(Template::fairing())
         .launch();
 }
