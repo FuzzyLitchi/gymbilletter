@@ -1,4 +1,7 @@
 <h1>Parties</h1>
+{% if user %}
+  <h2>Welcome {{ user.username }}!</h2>
+{% endif %}
 <ul>
 {% for party in parties %}
   <li><a href="/party/{{ party.id }}">{{ party.title }}</a></li>
