@@ -78,3 +78,28 @@ pub struct NewUser {
     pub is_admin: bool,
     salt_hash: String,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct Admin {
+    pub username: String,
+}
+
+impl<'a, 'r> FromRequest<'a, 'r> for Admin {
+    type Error = ();
+
+    fn from_request(request: &'a Request<'r>) -> Outcome<Admin, (Status, ()), ()> {
+        match request.guard::<User>() {
+            Outcome::Success(user) => {
+                if user.is_admin {
+                    Outcome::Success(Admin {
+                        username: user.username
+                    })
+                } else {
+                    Outcome::Forward(())
+                }
+            },
+            Outcome::Failure(fail) => Outcome::Failure(fail),
+            Outcome::Forward(_) => Outcome::Forward(())
+        }
+    }
+}

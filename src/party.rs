@@ -1,5 +1,4 @@
 use super::schema::parties;
-use serde::ser::*;
 
 #[derive(Queryable, Serialize, Deserialize)]
 pub struct Party {
