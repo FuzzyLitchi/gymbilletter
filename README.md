@@ -7,6 +7,6 @@ This project is mostly about learning how to use rocket, diesel, templates, post
 
 TODO:
  - [ ] Finish the user type
- - [ ] Add an admin request guard
+ - [x] Add an admin request guard
  - [ ] Get some good templates going
- - [ ] 
+ - [ ]

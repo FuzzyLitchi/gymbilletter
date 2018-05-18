@@ -1,0 +1,10 @@
+<h1>Parties</h1>
+{% if user %}
+  <h2>Welcome {{ user.username }}!</h2>
+{% endif %}
+
+<form action="/new_party" method="post">
+    Title: <input type="text" name="title"><br>
+    Description: <textarea name="body"></textarea><br>
+    <input type="submit" value="Submit">
+</form>

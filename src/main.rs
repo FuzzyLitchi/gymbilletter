@@ -66,9 +66,15 @@ fn party_details(id: i32, conn: DbConn) -> Option<String> {
     }
 }
 
+use auth::Admin;
+#[get("/new_party")]
+fn new_party(user: Admin) -> Template {
+    Template::render("new_party", json!({"user": &user}))
+}
+
 use party::NewParty;
 #[post("/new_party", data = "<new_party>")]
-fn new_party(new_party: Form<NewParty>, conn: DbConn) -> String {
+fn new_party_post(user: Admin, new_party: Form<NewParty>, conn: DbConn) -> String {
     use schema::parties::dsl::parties;
     use party::Party;
 
@@ -102,6 +108,7 @@ fn main() {
         .mount("/", routes![party])
         .mount("/", routes![party_details])
         .mount("/", routes![new_party])
+        .mount("/", routes![new_party_post])
         .mount("/", routes![new_user])
         .attach(Template::fairing())
         .launch();
