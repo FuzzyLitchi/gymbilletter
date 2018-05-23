@@ -2,7 +2,6 @@
 #![plugin(rocket_codegen)]
 
 extern crate rocket;
-use rocket::request::Form;
 
 extern crate rocket_contrib;
 use rocket_contrib::Template;
@@ -20,8 +19,8 @@ use database::{DbConn, init_pool};
 
 mod schema;
 mod party;
-mod auth;
-use auth::User;
+mod user;
+use user::User;
 
 #[get("/")]
 fn index_user(conn: DbConn, user: User) -> Template {
@@ -49,67 +48,12 @@ fn index(conn: DbConn, mut cookies: Cookies) -> Template {
     Template::render("index", json!({"parties": &results}))
 }
 
-#[get("/party")]
-fn party() -> &'static str {
-    "Parties"
-}
-
-#[get("/party/<id>")]
-fn party_details(id: i32, conn: DbConn) -> Option<String> {
-    use schema::parties::dsl::parties;
-    use party::Party;
-
-    match parties.find(id)
-        .first::<Party>(&*conn) {
-        Ok(party) => Some(format!("Title: {}\nDescription: {}", party.title, party.body)),
-        Err(_) => None
-    }
-}
-
-use auth::Admin;
-#[get("/new_party")]
-fn new_party(user: Admin) -> Template {
-    Template::render("new_party", json!({"user": &user}))
-}
-
-use party::NewParty;
-#[post("/new_party", data = "<new_party>")]
-fn new_party_post(user: Admin, new_party: Form<NewParty>, conn: DbConn) -> String {
-    use schema::parties::dsl::parties;
-    use party::Party;
-
-    match diesel::insert_into(parties)
-        .values(new_party.get())
-        .get_result::<Party>(&*conn) {
-        Ok(party) => format!("Party \"{}\" has been created", party.title),
-        Err(_) => "Error".into(),
-    }
-}
-
-use auth::NewUser;
-#[post("/new_user", data = "<new_user>")]
-fn new_user(new_user: Form<NewUser>, conn: DbConn) -> String {
-    use schema::users::dsl::users;
-    use auth::{User, UserQuery};
-
-    match diesel::insert_into(users)
-        .values(new_user.get())
-        .get_result::<UserQuery>(&*conn) {
-        Ok(user) => format!("User \"{}\" has been created, width uuid \"{}\"", user.username, user.user_id),
-        Err(_) => "Error".into(),
-    }
-}
-
 fn main() {
     rocket::ignite()
         .manage(init_pool())
-        .mount("/", routes![index_user])
-        .mount("/", routes![index])
-        .mount("/", routes![party])
-        .mount("/", routes![party_details])
-        .mount("/", routes![new_party])
-        .mount("/", routes![new_party_post])
-        .mount("/", routes![new_user])
+        .mount("/", routes![index, index_user])
+        .mount("/party", routes![party::list, party::details, party::new, party::new_post])
+        .mount("/user", routes![user::new])
         .attach(Template::fairing())
         .launch();
 }
