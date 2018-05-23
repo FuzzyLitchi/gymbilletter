@@ -6,6 +6,11 @@ use database::DbConn;
 use uuid::Uuid;
 use schema::users;
 
+use diesel;
+use diesel::prelude::*;
+
+use rocket::request::Form;
+
 #[derive(Queryable)]
 pub struct UserQuery {
     pub user_id: Uuid,
@@ -101,5 +106,18 @@ impl<'a, 'r> FromRequest<'a, 'r> for Admin {
             Outcome::Failure(fail) => Outcome::Failure(fail),
             Outcome::Forward(_) => Outcome::Forward(())
         }
+    }
+}
+
+#[post("/new", data = "<new_user>")]
+fn new(new_user: Form<NewUser>, conn: DbConn) -> String {
+    use schema::users::dsl::users;
+    use user::UserQuery;
+
+    match diesel::insert_into(users)
+        .values(new_user.get())
+        .get_result::<UserQuery>(&*conn) {
+        Ok(user) => format!("User \"{}\" has been created, width uuid \"{}\"", user.username, user.user_id),
+        Err(_) => "Error".into(),
     }
 }
