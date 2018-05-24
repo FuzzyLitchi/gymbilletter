@@ -13,7 +13,7 @@ TODO:
  - [x] Add an admin request guard
  - [x] Get some bad templates going
  - [ ] Get some good templates going
- - [ ] Add the ability for people to sign up to parties
+ - [x] Add the ability for people to sign up to parties
  - [ ] Add a way for someone to prove they bough a ticket
  - [ ] Idk how I'm going to add payment
  - [ ] Add some fancy admin interface for viewing data about stuff
