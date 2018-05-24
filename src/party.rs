@@ -37,6 +37,20 @@ fn details(id: i32, conn: DbConn) -> Option<String> {
     }
 }
 
+use people::Registration;
+#[post("/<id>", data = "<registration>")]
+fn sign_up(id: i32, registration: Form<Registration>, conn: DbConn) -> String {
+    use super::schema::people::dsl::people;
+    use people::Person;
+
+    match diesel::insert_into(people)
+        .values(registration.into_inner().upgrade(id))
+        .get_result::<Person>(&*conn) {
+            Ok(person) => format!("{} has been added to the party.", person.first_name),
+            Err(_) => "Error".into(),
+    }
+}
+
 #[get("/new")]
 fn new(user: Admin) -> Template {
     Template::render("new_party", json!({"user": &user}))
