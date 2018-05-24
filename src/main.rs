@@ -21,6 +21,7 @@ mod schema;
 mod party;
 mod user;
 use user::User;
+mod people;
 
 #[get("/")]
 fn index_user(conn: DbConn, user: User) -> Template {
@@ -43,6 +44,7 @@ fn index(conn: DbConn, mut cookies: Cookies) -> Template {
         .expect("Error");
 
     use rocket::http::Cookie;
+    //This is a debug thing
     cookies.add_private(Cookie::new("uuid", "23a6fe73-9745-4e9a-8a73-ddb800949021"));
 
     Template::render("index", json!({"parties": &results}))
@@ -52,7 +54,7 @@ fn main() {
     rocket::ignite()
         .manage(init_pool())
         .mount("/", routes![index, index_user])
-        .mount("/party", routes![party::list, party::details, party::new, party::new_post])
+        .mount("/party", routes![party::list, party::details, party::sign_up, party::new, party::new_post])
         .mount("/user", routes![user::new])
         .attach(Template::fairing())
         .launch();
