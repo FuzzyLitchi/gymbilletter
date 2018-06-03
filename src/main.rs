@@ -2,6 +2,7 @@
 #![plugin(rocket_codegen)]
 
 extern crate rocket;
+use rocket::response::NamedFile;
 
 extern crate rocket_contrib;
 use rocket_contrib::Template;
@@ -22,6 +23,8 @@ mod party;
 mod user;
 use user::User;
 mod people;
+
+use std::path::{Path, PathBuf};
 
 #[get("/")]
 fn index_user(conn: DbConn, user: User) -> Template {
@@ -50,10 +53,15 @@ fn index(conn: DbConn, mut cookies: Cookies) -> Template {
     Template::render("index", json!({"parties": &results}))
 }
 
+#[get("/<file..>", rank=10)]
+fn files(file: PathBuf) -> Option<NamedFile> {
+    NamedFile::open(Path::new("static/").join(file)).ok()
+}
+
 fn main() {
     rocket::ignite()
         .manage(init_pool())
-        .mount("/", routes![index, index_user])
+        .mount("/", routes![index, index_user, files])
         .mount("/party", routes![party::list, party::details, party::sign_up, party::new, party::new_post])
         .mount("/user", routes![user::new])
         .attach(Template::fairing())

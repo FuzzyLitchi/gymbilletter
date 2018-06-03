@@ -12,8 +12,11 @@ TODO:
  - [ ] Make the user type good
  - [x] Add an admin request guard
  - [x] Get some bad templates going
+ - [x] Get a good template going (add dope fonts and colors or whatever)
  - [ ] Get some good templates going
  - [x] Add the ability for people to sign up to parties
  - [ ] Add a way for someone to prove they bough a ticket
  - [ ] Idk how I'm going to add payment
  - [ ] Add some fancy admin interface for viewing data about stuff
+ - [ ] Find out how to do the email stuff
+ - [ ] Do the email stuff
