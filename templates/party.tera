@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="/party.css">
+        <title></title>
+    </head>
+    <body>
+        <div class="main">
+            <div class="title">
+                <h1>{{ party.title }}</h1>
+            </div>
+            <div class="body">
+                <div class="left">
+                    <p id="description">
+                        {{ party.body }}
+                    </p>
+                    <form action="#">
+                        <input id="button" type="submit" value="Bestil"/>
+                    </form>
+                </div>
+
+                <div class="right">
+                    <img id="map" src="http://via.placeholder.com/450x450">
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

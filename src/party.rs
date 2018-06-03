@@ -29,10 +29,10 @@ fn list () -> &'static str {
 }
 
 #[get("/<id>")]
-fn details(id: i32, conn: DbConn) -> Option<String> {
+fn details(id: i32, conn: DbConn) -> Option<Template> {
     match parties::dsl::parties.find(id)
         .first::<Party>(&*conn) {
-        Ok(party) => Some(format!("Title: {}\nDescription: {}", party.title, party.body)),
+        Ok(party) => Some(Template::render("party", json!({"party": &party}))),
         Err(_) => None
     }
 }
