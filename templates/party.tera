@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <link rel="stylesheet" href="/party.css">
-        <title></title>
+        <title>Gymbilletter: {{ party.title }}</title>
     </head>
     <body>
         <div class="main">
