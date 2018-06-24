@@ -20,3 +20,4 @@ TODO:
  - [ ] Add some fancy admin interface for viewing data about stuff
  - [ ] Find out how to do the email stuff
  - [ ] Do the email stuff
+ - [ ] Add tests
