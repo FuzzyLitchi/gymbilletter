@@ -4,6 +4,7 @@ use rocket::request::{Form, FromRequest};
 
 use database::DbConn;
 use uuid::Uuid;
+use bcrypt;
 use schema::users;
 
 use diesel;
@@ -14,7 +15,7 @@ pub struct UserQuery {
     pub user_id: Uuid,
     pub username: String,
     pub is_admin: bool,
-    salt_hash: String,
+    pub hash: String,
 }
 
 impl UserQuery {
@@ -74,14 +75,6 @@ impl<'a, 'r> FromRequest<'a, 'r> for User {
     }
 }
 
-#[derive(Insertable, FromForm)]
-#[table_name="users"]
-pub struct NewUser {
-    pub username: String,
-    pub is_admin: bool,
-    salt_hash: String,
-}
-
 #[derive(Serialize, Deserialize)]
 pub struct Admin {
     pub username: String,
@@ -107,13 +100,40 @@ impl<'a, 'r> FromRequest<'a, 'r> for Admin {
     }
 }
 
-#[post("/new", data = "<new_user>")]
-fn new(new_user: Form<NewUser>, conn: DbConn) -> String {
+#[derive(FromForm)]
+struct FormUser {
+    pub username: String,
+    pub password: String,
+    pub is_admin: bool,
+}
+
+impl FormUser {
+    fn upgrade(&self) -> NewUser {
+        NewUser {
+            username: self.username.clone(),
+            is_admin: self.is_admin,
+            hash: bcrypt::hash(&self.password, super::DEFAULT_COST).unwrap(),
+        }
+    }
+}
+
+#[derive(Insertable)]
+#[table_name="users"]
+pub struct NewUser {
+    pub username: String,
+    pub is_admin: bool,
+    pub hash: String,
+}
+
+#[post("/new", data = "<form_user>")]
+fn new(form_user: Form<FormUser>, conn: DbConn) -> String {
     use schema::users::dsl::users;
     use user::UserQuery;
 
+    //NOTE: Check if user can be added here
+
     match diesel::insert_into(users)
-        .values(new_user.get())
+        .values(form_user.get().upgrade())
         .get_result::<UserQuery>(&*conn) {
         Ok(user) => format!("User \"{}\" has been created, width uuid \"{}\"", user.username, user.user_id),
         Err(_) => "Error".into(),
