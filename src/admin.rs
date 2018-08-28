@@ -1,5 +1,6 @@
 //This file is for the admin interface
 use rocket::request::Form;
+use rocket::http::{Cookies, Cookie};
 use rocket_contrib::Template;
 
 use database::DbConn;
@@ -7,9 +8,9 @@ use bcrypt;
 
 use diesel::prelude::*;
 
-#[get("/")]
+#[get("/login")]
 fn login() -> Template {
-    unimplemented!();
+    Template::render("login", json!({}))
 }
 
 #[derive(FromForm)]
@@ -19,7 +20,7 @@ struct Login {
 }
 
 #[post("/login", data = "<login>")]
-fn login_post(login: Form<Login>, conn: DbConn) -> String {
+fn login_post(login: Form<Login>, conn: DbConn, mut cookies: Cookies) -> String {
     use schema::users::dsl::*;
     use user::UserQuery;
 
@@ -32,6 +33,7 @@ fn login_post(login: Form<Login>, conn: DbConn) -> String {
 
     if let Ok(result) = bcrypt::verify(&login.password, &user.hash) {
         if result {
+            cookies.add_private(Cookie::new("uuid", user.user_id.hyphenated().to_string()));
             return "Yay".into();
         }
     }
