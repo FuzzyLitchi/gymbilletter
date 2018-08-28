@@ -40,18 +40,13 @@ fn index_user(conn: DbConn, user: User) -> Template {
     Template::render("index", json!({"parties": &results, "user": &user}))
 }
 
-use rocket::http::Cookies;
 #[get("/", rank = 2)]
-fn index(conn: DbConn, mut cookies: Cookies) -> Template {
+fn index(conn: DbConn) -> Template {
     use schema::parties::dsl::*;
     use party::Party;
 
     let results = parties.load::<Party>(&*conn)
         .expect("Error");
-
-    use rocket::http::Cookie;
-    //This is a debug thing
-    cookies.add_private(Cookie::new("uuid", "d5e9e5be-861c-4455-b7df-f42f1b01da80"));
 
     Template::render("index", json!({"parties": &results}))
 }
