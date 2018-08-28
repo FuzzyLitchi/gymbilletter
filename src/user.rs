@@ -1,6 +1,6 @@
 use rocket::http::{Cookie, Cookies, Status};
 use rocket::{Outcome, Request};
-use rocket::request::FromRequest;
+use rocket::request::{Form, FromRequest};
 
 use database::DbConn;
 use uuid::Uuid;
@@ -8,8 +8,6 @@ use schema::users;
 
 use diesel;
 use diesel::prelude::*;
-
-use rocket::request::Form;
 
 #[derive(Queryable)]
 pub struct UserQuery {

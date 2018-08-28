@@ -14,6 +14,8 @@ extern crate uuid;
 extern crate serde;
 #[macro_use] extern crate serde_derive;
 #[macro_use] extern crate serde_json;
+extern crate bcrypt;
+pub const DEFAULT_COST: usize = 12;
 
 mod database;
 use database::{DbConn, init_pool};
@@ -23,6 +25,7 @@ mod party;
 mod user;
 use user::User;
 mod people;
+mod admin;
 
 use std::path::{Path, PathBuf};
 
@@ -64,6 +67,7 @@ fn main() {
         .mount("/", routes![index, index_user, files])
         .mount("/party", routes![party::list, party::details, party::sign_up, party::new, party::new_post])
         .mount("/user", routes![user::new])
+        .mount("/admin", routes![admin::login, admin::login_post])
         .attach(Template::fairing())
         .launch();
 }
