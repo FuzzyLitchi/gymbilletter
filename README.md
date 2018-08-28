@@ -18,6 +18,7 @@ TODO:
  - [ ] Add a way for someone to prove they bough a ticket
  - [ ] Idk how I'm going to add payment
  - [ ] Add some fancy admin interface for viewing data about stuff
+ - [x] Add working login
  - [ ] Find out how to do the email stuff
  - [ ] Do the email stuff
  - [ ] Add tests
