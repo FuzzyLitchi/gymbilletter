@@ -15,7 +15,7 @@ extern crate serde;
 #[macro_use] extern crate serde_derive;
 #[macro_use] extern crate serde_json;
 extern crate bcrypt;
-pub const DEFAULT_COST: usize = 12;
+pub const DEFAULT_COST: u32 = 8;
 
 mod database;
 use database::{DbConn, init_pool};
@@ -51,7 +51,7 @@ fn index(conn: DbConn, mut cookies: Cookies) -> Template {
 
     use rocket::http::Cookie;
     //This is a debug thing
-    cookies.add_private(Cookie::new("uuid", "23a6fe73-9745-4e9a-8a73-ddb800949021"));
+    cookies.add_private(Cookie::new("uuid", "d5e9e5be-861c-4455-b7df-f42f1b01da80"));
 
     Template::render("index", json!({"parties": &results}))
 }

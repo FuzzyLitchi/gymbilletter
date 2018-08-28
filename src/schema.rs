@@ -22,7 +22,7 @@ table! {
         user_id -> Uuid,
         username -> Varchar,
         is_admin -> Bool,
-        salt_hash -> Text,
+        hash -> Text,
     }
 }
 

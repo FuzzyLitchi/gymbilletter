@@ -3,11 +3,8 @@ use rocket::request::Form;
 use rocket_contrib::Template;
 
 use database::DbConn;
-use uuid::Uuid;
 use bcrypt;
-use schema::users;
 
-use diesel;
 use diesel::prelude::*;
 
 #[get("/")]
@@ -33,7 +30,7 @@ fn login_post(login: Form<Login>, conn: DbConn) -> String {
         Err(_) => return "Oof".into(),
     };
 
-    if let Ok(result) = bcrypt::verify(&login.password, &user.salt_hash) {
+    if let Ok(result) = bcrypt::verify(&login.password, &user.hash) {
         if result {
             return "Yay".into();
         }
